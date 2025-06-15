@@ -23,6 +23,12 @@
       "@database/*": [
         "src/database/*"
       ],
+      "@lib/*": [
+        "src/lib/*"
+      ],
+      "@profiles/*": [
+        "src/profiles/*"
+      ],
     },
     "incremental": true,
     "skipLibCheck": true,

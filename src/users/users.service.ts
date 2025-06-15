@@ -1,29 +1,78 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, Inject } from '@nestjs/common';
+import { CreateUserDto, FilterUserDto, UpdateStatusDto, UpdateUserDto } from '@users/user.schema';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as schema from '@database/schema';
+import { eq, SQL } from 'drizzle-orm';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    console.log('Creating user with data:', createUserDto);
+  constructor(@Inject('DRIZZLE') protected readonly db: NodePgDatabase<typeof schema>) {}
 
-    return 'This action adds a new user';
+  async findUserByEmail(email: string) {
+    return await this.db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, email),
+    });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async create(user: CreateUserDto) {
+    const [newUser] = await this.db.insert(schema.users).values(user).returning();
+    return newUser;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findAll(filter: FilterUserDto) {
+    return await this.db.query.users.findMany({
+      columns: {
+        password: false,
+      },
+      where: (users, { and, eq }) => {
+        const filters: SQL[] = [];
+        if (filter.email) {
+          filters.push(eq(users.email, filter.email));
+        }
+        if (filter.firstName) {
+          filters.push(eq(users.firstName, filter.firstName));
+        }
+        if (filter.lastName) {
+          filters.push(eq(users.lastName, filter.lastName));
+        }
+        if (filter.profileId) {
+          filters.push(eq(users.profileId, filter.profileId));
+        }
+        if (filter.isActive !== undefined) {
+          filters.push(eq(users.isActive, filter.isActive));
+        }
+        return and(...filters);
+      },
+      orderBy: (users, { asc, desc }) => {
+        if (filter.order == 'asc') {
+          return asc(users[filter.orderBy]);
+        }
+        if (filter.order == 'desc') {
+          return desc(users[filter.orderBy]);
+        }
+        return asc(users.idUser);
+      },
+      limit: filter.limit,
+      offset: filter.page && filter.limit ? (filter.page - 1) * filter.limit : undefined,
+    });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    console.log('Updating user with ID:', id, 'and data:', updateUserDto);
-    return `This action updates a #${id} user`;
+  async findById(idUser: number) {
+    return await this.db.query.users.findFirst({
+      columns: {
+        password: false,
+      },
+      where: (users, { eq }) => eq(users.idUser, idUser),
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(idUser: number, updateData: UpdateUserDto) {
+    const [userData] = await this.db.update(schema.users).set(updateData).where(eq(schema.users.idUser, idUser)).returning();
+    return userData;
+  }
+
+  async updateStatus(idUser: number, userStatus: UpdateStatusDto) {
+    const [user] = await this.db.update(schema.users).set(userStatus).where(eq(schema.users.idUser, idUser)).returning();
+    return user;
   }
 }
