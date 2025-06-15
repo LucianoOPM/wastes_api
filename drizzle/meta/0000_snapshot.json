@@ -1,5 +1,5 @@
 {
-  "id": "eaeb4246-121f-4345-8c0a-ba91366d9663",
+  "id": "3b2040b2-ca0f-48f5-834b-29015b082dc6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,7 +10,7 @@
       "columns": {
         "id_profile": {
           "name": "id_profile",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -50,7 +50,7 @@
       "columns": {
         "id_user": {
           "name": "id_user",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },

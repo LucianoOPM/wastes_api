@@ -1,12 +1,12 @@
 CREATE TABLE "profiles" (
-	"id_profile" integer PRIMARY KEY NOT NULL,
+	"id_profile" serial PRIMARY KEY NOT NULL,
 	"name" varchar(50) NOT NULL,
 	"is_active" boolean DEFAULT true NOT NULL,
 	CONSTRAINT "profiles_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id_user" integer PRIMARY KEY NOT NULL,
+	"id_user" serial PRIMARY KEY NOT NULL,
 	"email" varchar(100) NOT NULL,
 	"password" varchar(75) NOT NULL,
 	"first_name" varchar(50) NOT NULL,

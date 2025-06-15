@@ -1,8 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { users } from './schema/users';
-import { profiles } from './schema/profiles';
+import * as schema from './schema';
 
 export const databaseProvider = [
   {
@@ -13,9 +12,8 @@ export const databaseProvider = [
       const pool = new Pool({
         connectionString: connectionUrl,
       });
-      const db = drizzle({
-        client: pool,
-        schema: { users, profiles },
+      const db = drizzle(pool, {
+        schema,
       });
       return db;
     },

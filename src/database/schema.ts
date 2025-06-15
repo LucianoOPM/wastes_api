@@ -1,9 +1,20 @@
+import {
+  integer,
+  pgTable,
+  varchar,
+  boolean,
+  serial,
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { pgTable, integer, varchar, boolean } from 'drizzle-orm/pg-core';
-import { profiles } from './profiles';
+
+export const profiles = pgTable('profiles', {
+  idProfile: serial('id_profile').primaryKey().notNull(),
+  name: varchar({ length: 50 }).notNull().unique(),
+  isActive: boolean('is_active').default(true).notNull(),
+});
 
 export const users = pgTable('users', {
-  idUser: integer('id_user').primaryKey().notNull(),
+  idUser: serial('id_user').primaryKey().notNull(),
   email: varchar({ length: 100 }).notNull().unique(),
   password: varchar({ length: 75 }).notNull(),
   firstName: varchar('first_name', { length: 50 }).notNull(),
@@ -14,7 +25,10 @@ export const users = pgTable('users', {
     .notNull(),
 });
 
-// Relación: un usuario tiene un perfil
+export const profileUsers = relations(profiles, ({ many }) => ({
+  users: many(users),
+}));
+
 export const userProfile = relations(users, ({ one }) => ({
   profile: one(profiles, {
     fields: [users.profileId],
