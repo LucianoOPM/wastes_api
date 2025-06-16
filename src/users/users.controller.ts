@@ -27,7 +27,7 @@ import {
 import { Hash } from '@lib/hash';
 import { ProfilesService } from '@profiles/profiles.service';
 
-@Controller('users')
+@Controller({ path: 'users', version: '1' })
 export class UsersController {
   constructor(
     protected readonly usersService: UsersService,
