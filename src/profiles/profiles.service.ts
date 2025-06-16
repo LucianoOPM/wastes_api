@@ -1,74 +1,58 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '@database/schema';
-import { FilterProfileDto, UpdateProfileDto, UpdateStatusDto } from '@profiles/profile.schema';
-import { eq, SQL } from 'drizzle-orm';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateProfileDto, FilterProfileDto, UpdateProfileDto, UpdateStatusDto } from '@profiles/profile.schema';
+import { ProfileRepository } from '@profiles/profile.repository';
 
 @Injectable()
 export class ProfilesService {
-  constructor(@Inject('DRIZZLE') protected readonly db: NodePgDatabase<typeof schema>) {}
+  constructor(protected readonly repository: ProfileRepository) {}
 
-  async findProfileById(id: number) {
-    return await this.db.query.profiles.findFirst({
-      where: (profiles, { eq }) => eq(profiles.idProfile, id),
-    });
-  }
-
-  async findByName(name: string) {
-    return await this.db.query.profiles.findFirst({
-      where: (profiles, { eq }) => eq(profiles.name, name),
-    });
-  }
-
-  async createProfile(newProfile: schema.NewProfile) {
-    const [profile] = await this.db.insert(schema.profiles).values(newProfile).returning();
-    return profile;
+  async createProfile(profileData: CreateProfileDto) {
+    const profile = await this.repository.findByName(profileData.name);
+    if (profile) throw new BadRequestException('Profile name already exists');
+    return await this.repository.createProfile(profileData);
   }
 
   async findAll(filter: FilterProfileDto) {
-    return await this.db.query.profiles.findMany({
-      where: (profiles, { and, eq }) => {
-        const profileSql: SQL[] = [];
-
-        if (filter.isActive !== undefined) {
-          profileSql.push(eq(profiles.isActive, filter.isActive));
-        }
-
-        if (filter.name) {
-          profileSql.push(eq(profiles.name, filter.name));
-        }
-
-        return and(...profileSql);
-      },
-      orderBy: (profiles, { asc, desc }) => {
-        if (filter.order === 'asc') {
-          return asc(profiles[filter.orderBy]);
-        }
-        if (filter.order === 'desc') {
-          return desc(profiles[filter.orderBy]);
-        }
-        return asc(profiles.idProfile);
-      },
-      limit: filter.limit,
-      offset: filter.page && filter.limit ? (filter.page - 1) * filter.limit : undefined,
-    });
+    const { total, results } = await this.repository.findAll(filter);
+    const totalPages = Math.ceil(total / filter.limit);
+    return {
+      data: results,
+      totalRecords: total,
+      totalPages,
+      currentPage: filter.page,
+      pageSize: filter.limit,
+      hasNextPage: filter.page < totalPages,
+      hasPreviousPage: filter.page > 1,
+      nextPage: filter.page < totalPages ? filter.page + 1 : undefined,
+      previoudPage: filter.page > 1 ? filter.page - 1 : undefined,
+    };
   }
 
-  async update(idProfile: number, updateData: UpdateProfileDto) {
-    const [profile] = await this.db
-      .update(schema.profiles)
-      .set(updateData)
-      .where(eq(schema.profiles.idProfile, idProfile))
-      .returning();
+  async findProfileById(id: number) {
+    const profile = await this.repository.findProfileById(id);
+    if (!profile) throw new NotFoundException('Profile not found');
+    if (!profile.isActive) throw new BadRequestException('Profile is not active');
     return profile;
+  }
+
+  async update(idProfile: number, newData: UpdateProfileDto) {
+    const profile = await this.repository.findProfileById(idProfile);
+    if (!profile) throw new NotFoundException('Profile not found');
+    if (!profile.isActive) throw new BadRequestException('Profile is not active');
+
+    if (newData.name) {
+      const profileName = await this.repository.findByName(newData.name);
+      if (profileName && profileName.idProfile !== profile.idProfile) {
+        throw new BadRequestException('Already exists another profile with this name');
+      }
+    }
+
+    return await this.repository.update(idProfile, newData);
   }
 
   async updateStatus(idProfile: number, status: UpdateStatusDto) {
-    const [profile] = await this.db
-      .update(schema.profiles)
-      .set(status)
-      .where(eq(schema.profiles.idProfile, idProfile))
-      .returning();
-    return profile;
+    const profile = await this.repository.findProfileById(idProfile);
+    if (!profile) throw new NotFoundException('Profile is not found');
+    return await this.repository.updateStatus(idProfile, status);
   }
 }

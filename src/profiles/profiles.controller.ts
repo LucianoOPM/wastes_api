@@ -1,17 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  UsePipes,
-  BadRequestException,
-  Query,
-  Param,
-  ParseIntPipe,
-  NotFoundException,
-  Put,
-  Patch,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, UsePipes, Query, Param, ParseIntPipe, Put, Patch } from '@nestjs/common';
 import { ProfilesService } from '@profiles/profiles.service';
 import { ZodValidationPipe } from '@src/zodvalidation/zodvalidation.pipe';
 import {
@@ -32,23 +19,30 @@ export class ProfilesController {
   @Post()
   @UsePipes(new ZodValidationPipe(CreateProfileSchema))
   async create(@Body() profileData: CreateProfileDto) {
-    const profile = await this.profilesService.findByName(profileData.name);
-    if (profile) throw new BadRequestException('Profile name already exists');
-    return this.profilesService.createProfile(profileData);
+    const profile = await this.profilesService.createProfile(profileData);
+    return {
+      success: true,
+      data: profile,
+    };
   }
 
   @Get()
   @UsePipes(new ZodValidationPipe(FilterProfileSchema))
   async findAll(@Query() filter: FilterProfileDto) {
-    return await this.profilesService.findAll(filter);
+    const data = await this.profilesService.findAll(filter);
+    return {
+      success: true,
+      data,
+    };
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const profile = await this.profilesService.findProfileById(id);
-    if (!profile) throw new NotFoundException('Profile is not found');
-    if (!profile.isActive) throw new BadRequestException('Profile is not active');
-    return profile;
+    return {
+      success: true,
+      data: profile,
+    };
   }
 
   @Put(':id')
@@ -56,14 +50,11 @@ export class ProfilesController {
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodValidationPipe(UpdateProfileSchema)) updateProfileDto: UpdateProfileDto,
   ) {
-    const profile = await this.profilesService.findProfileById(id);
-    if (!profile) {
-      throw new NotFoundException('Profile not found');
-    }
-    if (!profile.isActive) {
-      throw new BadRequestException('Profile is not active');
-    }
-    return await this.profilesService.update(id, updateProfileDto);
+    const res = await this.profilesService.update(id, updateProfileDto);
+    return {
+      success: true,
+      data: res,
+    };
   }
 
   @Patch(':id')
@@ -71,8 +62,10 @@ export class ProfilesController {
     @Param('id', ParseIntPipe) idProfile: number,
     @Body(new ZodValidationPipe(UpdateStatusSchema)) status: UpdateStatusDto,
   ) {
-    const profile = await this.profilesService.findProfileById(idProfile);
-    if (!profile) throw new NotFoundException('Profile is not found');
-    return await this.profilesService.updateStatus(idProfile, status);
+    const res = await this.profilesService.updateStatus(idProfile, status);
+    return {
+      success: true,
+      data: res,
+    };
   }
 }

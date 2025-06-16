@@ -30,8 +30,3 @@ export const userProfile = relations(users, ({ one }) => ({
     references: [profiles.idProfile],
   }),
 }));
-
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-export type Profile = typeof profiles.$inferSelect;
-export type NewProfile = typeof profiles.$inferInsert;
