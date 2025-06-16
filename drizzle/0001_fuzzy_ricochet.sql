@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" ADD COLUMN "description" varchar(100) DEFAULT 'No Description' NOT NULL;

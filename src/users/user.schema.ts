@@ -3,7 +3,6 @@ import { z } from 'zod';
 const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/, 'g');
 const orderList = ['email', 'firstName', 'lastName', 'idUser'] as const;
 const validOrder = ['asc', 'desc'] as const;
-const profileFilter: readonly number[] = [1];
 
 export const CreateUserSchema = z
   .object({
@@ -61,9 +60,6 @@ export const FilterUserSchema = z.object({
   profileId: z.coerce
     .number({ invalid_type_error: 'Profile ID should be a number' })
     .int({ message: 'Profile ID should be an integer' })
-    .refine((id) => profileFilter.includes(id), {
-      message: `Profile ID must be one of: ${profileFilter.join(', ')}`,
-    })
     .optional(),
   email: z.string({ message: 'Email should be a string' }).email({ message: 'Email should be a valid format' }).optional(),
   firstName: z.string({ message: 'Fist name should be a valid string' }).optional(),
