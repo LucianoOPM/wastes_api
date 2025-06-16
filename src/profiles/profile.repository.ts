@@ -3,7 +3,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@database/schema';
 import type { NewProfile, UpdateProfile, UpdateProfileStatus } from '@database/types';
 import { FilterProfileDto } from '@profiles/profile.schema';
-import { eq, SQL, and, count } from 'drizzle-orm';
+import { eq, SQL, and } from 'drizzle-orm';
 
 @Injectable()
 export class ProfileRepository {
@@ -27,7 +27,7 @@ export class ProfileRepository {
   }
 
   async findAll(filter: FilterProfileDto) {
-    const { isActive, name, order = 'asc', orderBy = 'idProfile', limit = 10, page = 1 } = filter;
+    const { isActive, name, order, orderBy, limit, page } = filter;
 
     const conditions: SQL[] = [];
 
@@ -38,24 +38,15 @@ export class ProfileRepository {
     if (name) {
       conditions.push(eq(schema.profiles.name, name));
     }
-
     const whereClause = conditions.length ? and(...conditions) : undefined;
-
-    const orderDirection = order === 'desc' ? 'desc' : 'asc';
-    const sortColumn = schema.profiles[orderBy] ?? schema.profiles.idProfile;
-
     const [results, totalResult] = await Promise.all([
       this.db.query.profiles.findMany({
         where: whereClause,
-        orderBy: (profiles, { asc, desc }) => (orderDirection === 'asc' ? asc(sortColumn) : desc(sortColumn)),
+        orderBy: (profiles, { asc, desc }) => (order === 'asc' ? asc(profiles[orderBy]) : desc(profiles[orderBy])),
         limit,
         offset: (page - 1) * limit,
       }),
-      this.db
-        .select({ count: count() })
-        .from(schema.profiles)
-        .where(whereClause)
-        .then((res) => res[0].count),
+      this.db.$count(schema.profiles, whereClause),
     ]);
 
     return {
