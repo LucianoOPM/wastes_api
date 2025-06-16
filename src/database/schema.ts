@@ -1,16 +1,11 @@
-import {
-  integer,
-  pgTable,
-  varchar,
-  boolean,
-  serial,
-} from 'drizzle-orm/pg-core';
+import { integer, pgTable, varchar, boolean, serial } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const profiles = pgTable('profiles', {
   idProfile: serial('id_profile').primaryKey().notNull(),
   name: varchar({ length: 50 }).notNull().unique(),
   isActive: boolean('is_active').default(true).notNull(),
+  description: varchar({ length: 100 }).notNull().default('No Description'),
 });
 
 export const users = pgTable('users', {

@@ -29,6 +29,9 @@
       "@profiles/*": [
         "src/profiles/*"
       ],
+      "@common/*": [
+        "src/common/*"
+      ]
     },
     "incremental": true,
     "skipLibCheck": true,

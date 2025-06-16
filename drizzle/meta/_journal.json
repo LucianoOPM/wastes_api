@@ -8,6 +8,13 @@
       "when": 1749997163500,
       "tag": "0000_fantastic_toro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1750036994767,
+      "tag": "0001_fuzzy_ricochet",
+      "breakpoints": true
     }
   ]
 }
