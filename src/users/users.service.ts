@@ -77,4 +77,11 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     return await this.userRepository.updateStatus(idUser, userStatus);
   }
+
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findUserByEmail(email);
+    if (!user) throw new NotFoundException('User not found');
+    if (!user.isActive) throw new BadRequestException('User is inactive');
+    return user;
+  }
 }

@@ -11,27 +11,15 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@src/*": [
-        "src/*"
-      ],
-      "@users/*": [
-        "src/users/*"
-      ],
-      "@config/*": [
-        "src/configuration/*"
-      ],
-      "@database/*": [
-        "src/database/*"
-      ],
-      "@lib/*": [
-        "src/lib/*"
-      ],
-      "@profiles/*": [
-        "src/profiles/*"
-      ],
-      "@common/*": [
-        "src/common/*"
-      ]
+      "@src/*": ["src/*"],
+      "@users/*": ["src/users/*"],
+      "@config/*": ["src/configuration/*"],
+      "@database/*": ["src/database/*"],
+      "@lib/*": ["src/lib/*"],
+      "@profiles/*": ["src/profiles/*"],
+      "@common/*": ["src/common/*"],
+      "@guards/*": ["src/guards/*"],
+      "@auth/*": ["src/auth/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
