@@ -8,7 +8,7 @@ export const databaseProvider = [
     provide: 'DRIZZLE',
     inject: [ConfigService],
     useFactory: (configService: ConfigService) => {
-      const connectionUrl = configService.get<string>('connectionUrl');
+      const connectionUrl = configService.get<string>('database.connectionUri');
       const pool = new Pool({
         connectionString: connectionUrl,
       });

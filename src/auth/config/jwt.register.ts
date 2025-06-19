@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 export default JwtModule.registerAsync({
   useFactory: (configService: ConfigService) => {
-    const jwtSecret = configService.get<string>('jwt.accessToken');
+    const jwtSecret = configService.get<string>('jwt.accessSecret');
     if (!jwtSecret) {
       throw new Error('No access token provided in jwt');
     }

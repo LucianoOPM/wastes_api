@@ -8,7 +8,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(protected readonly configService: ConfigService) {
-    const refreshSecret = configService.get<string>('jwt.refreshToken');
+    const refreshSecret = configService.get<string>('jwt.refreshSecret');
 
     if (!refreshSecret) {
       throw new Error('No refresh secret key provided');

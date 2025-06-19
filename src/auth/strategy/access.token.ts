@@ -6,7 +6,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'access_token') {
   constructor(configService: ConfigService) {
-    const secretKey = configService.get<string>('jwt.accessToken');
+    const secretKey = configService.get<string>('jwt.accessSecret');
 
     if (!secretKey) {
       throw new Error('No secret key provided in access token');
