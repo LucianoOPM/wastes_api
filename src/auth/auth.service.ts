@@ -49,7 +49,7 @@ export class AuthService {
     if (keepSession) {
       const idSession = randomUUID();
       const refreshPayload = { sub: user.idUser, tokenId: idSession };
-      const jwtSecret = this.configService.get<string>('jwt.refreshToken')!;
+      const jwtSecret = this.configService.get<string>('jwt.refreshSecret')!;
       const expirationTime = this.configService.get<string>('jwt.refreshExpiration')!;
       const expirationNumber = Number(expirationTime.replace('d', ''));
       const refreshToken = await this.jwtService.signAsync(refreshPayload, { secret: jwtSecret, expiresIn: expirationTime });
@@ -96,7 +96,7 @@ export class AuthService {
 
     const tokenId = randomUUID();
     const refreshPayload = { sub: user.idUser, tokenId };
-    const jwtSecret = this.configService.get<string>('jwt.refreshToken')!;
+    const jwtSecret = this.configService.get<string>('jwt.refreshSecret')!;
     const expirationTime = this.configService.get<string>('jwt.refreshExpiration')!;
     const expirationNumber = Number(expirationTime.replace('d', ''));
     const expiration = addDay(today, expirationNumber);

@@ -7,8 +7,8 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const appVersion = configService.get<string>('apiVersion')!;
-  const port = configService.get<number>('PORT')!;
+  const appVersion = configService.get<string>('app.apiVersion')!;
+  const port = configService.get<number>('app.port')!;
 
   app.use(cookieParser());
   app.enableVersioning({
