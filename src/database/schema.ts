@@ -1,4 +1,4 @@
-import { integer, pgTable, varchar, boolean, serial } from 'drizzle-orm/pg-core';
+import { integer, pgTable, varchar, boolean, serial, timestamp, uuid, inet } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const profiles = pgTable('profiles', {
@@ -16,17 +16,37 @@ export const users = pgTable('users', {
   lastName: varchar('last_name', { length: 50 }).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   profileId: integer()
-    .references(() => profiles.idProfile)
-    .notNull(),
+    .notNull()
+    .references(() => profiles.idProfile),
 });
 
-export const profileUsers = relations(profiles, ({ many }) => ({
+export const sessions = pgTable('sessions', {
+  idSession: uuid('id_session').primaryKey().notNull(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.idUser),
+  userAgent: varchar('user_agent', { length: 300 }).notNull(),
+  ipAdress: inet('ip_adress').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  isValid: boolean('is_valid').default(true).notNull(),
+});
+
+export const profileRelations = relations(profiles, ({ many }) => ({
   users: many(users),
 }));
 
-export const userProfile = relations(users, ({ one }) => ({
+export const userRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
     fields: [users.profileId],
     references: [profiles.idProfile],
+  }),
+  sessions: many(sessions),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.idUser],
   }),
 }));
