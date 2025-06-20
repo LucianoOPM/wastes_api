@@ -1,4 +1,17 @@
-import { integer, pgTable, varchar, boolean, serial, timestamp, uuid, inet } from 'drizzle-orm/pg-core';
+import {
+  integer,
+  pgTable,
+  varchar,
+  boolean,
+  serial,
+  timestamp,
+  uuid,
+  inet,
+  pgEnum,
+  decimal,
+  date,
+  text,
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const profiles = pgTable('profiles', {
@@ -32,6 +45,32 @@ export const sessions = pgTable('sessions', {
   isValid: boolean('is_valid').default(true).notNull(),
 });
 
+export const categories = pgTable('categories', {
+  idCategory: serial('id_category').primaryKey().notNull(),
+  name: varchar({ length: 50 }).notNull().unique(),
+  description: text(),
+  isActive: boolean('is_active').default(true).notNull(),
+});
+
+export const typeEnum = pgEnum('type', ['income', 'expense']);
+
+export const movements = pgTable('movements', {
+  id: serial().primaryKey().notNull(),
+  type: typeEnum('type').notNull(),
+  userId: integer()
+    .notNull()
+    .references(() => users.idUser),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  amount: decimal({ precision: 10, scale: 2 }),
+  description: text(),
+  date: date().notNull(),
+  title: varchar({ length: 100 }).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  categoryId: integer()
+    .notNull()
+    .references(() => categories.idCategory),
+});
+
 export const profileRelations = relations(profiles, ({ many }) => ({
   users: many(users),
 }));
@@ -48,5 +87,16 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
     references: [users.idUser],
+  }),
+}));
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  movements: many(movements),
+}));
+
+export const movementsRelations = relations(movements, ({ one }) => ({
+  category: one(categories, {
+    fields: [movements.categoryId],
+    references: [categories.idCategory],
   }),
 }));
