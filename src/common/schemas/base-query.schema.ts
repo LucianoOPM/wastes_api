@@ -18,6 +18,21 @@ export class BaseQuerySchemaBuilder {
     order: z.enum(['asc', 'desc']).default('asc'),
   });
 
+  static isActiveShape = {
+    isActive: z.preprocess(
+      (val) => {
+        if (val === '1' || val === 1 || val === true) return true;
+        if (val === '0' || val === 0 || val === false) return false;
+        return val;
+      },
+      z.boolean({ invalid_type_error: 'Is Active should be a valid boolean' }).optional(),
+    ),
+  };
+
+  static withIsActiveFilter<T extends ZodRawShape>(shape: T) {
+    return { ...shape, ...this.isActiveShape };
+  }
+
   /**
    * Construye un esquema de filtro combinando el esquema base con propiedades adicionales.
    * @param additionalShape - Un objeto con propiedades adicionales específicas del filtro

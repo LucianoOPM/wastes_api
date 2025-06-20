@@ -19,7 +19,10 @@
       "@profiles/*": ["src/profiles/*"],
       "@common/*": ["src/common/*"],
       "@guards/*": ["src/guards/*"],
-      "@auth/*": ["src/auth/*"]
+      "@auth/*": ["src/auth/*"],
+      "@movements/*": ["src/movements/*"],
+      "@categories/*": ["src/categories/*"],
+      "@decorators/*": ["src/decorators/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
