@@ -12,6 +12,7 @@ export default () => {
       port: result.data.PORT,
       env: result.data.NODE_ENV,
       apiVersion: result.data.API_VERSION,
+      frontUrl: result.data.FRONT_HTTP,
     },
     database: {
       connectionUri: result.data.CONNECTION_URL,
