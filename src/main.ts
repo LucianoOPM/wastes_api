@@ -9,7 +9,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const appVersion = configService.get<string>('app.apiVersion')!;
   const port = configService.get<number>('app.port')!;
+  const frontUrl = configService.get<string>('app.frontUrl')!;
 
+  app.enableCors({ origin: frontUrl, methods: ['GET', 'POST', 'PUT', 'PATCH'], credentials: true });
   app.use(cookieParser());
   app.enableVersioning({
     type: VersioningType.URI,

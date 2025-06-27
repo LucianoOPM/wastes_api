@@ -5,7 +5,7 @@ import { CreateSessionDto } from '@auth/auth.schema';
 import { Hash } from '@lib/hash';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { addDay, isAfter } from '@formkit/tempo';
+import { addDay, isAfter, diffDays } from '@formkit/tempo';
 import { randomUUID, type UUID } from 'node:crypto';
 
 type UserMetaData = {
@@ -89,32 +89,40 @@ export class AuthService {
     if (session.userAgent !== userMeta.userAgent) throw new UnauthorizedException('You are not allowed to do this');
     if (isAfter(today, session.expiresAt)) throw new ForbiddenException('Session is not valid');
 
-    await this.authRepository.inactivate(cookieUser.tokenId);
+    const daysLeft = diffDays(session.expiresAt, today);
 
     const accessPayload = { sub: user.idUser, email: user.email, username: `${user.firstName} ${user.lastName}` };
     const accessToken = await this.jwtService.signAsync(accessPayload);
 
-    const tokenId = randomUUID();
-    const refreshPayload = { sub: user.idUser, tokenId };
-    const jwtSecret = this.configService.get<string>('jwt.refreshSecret')!;
-    const expirationTime = this.configService.get<string>('jwt.refreshExpiration')!;
-    const expirationNumber = Number(expirationTime.replace('d', ''));
-    const expiration = addDay(today, expirationNumber);
+    if (daysLeft <= 1) {
+      await this.authRepository.inactivate(cookieUser.tokenId);
 
-    const refreshToken = await this.jwtService.signAsync(refreshPayload, { secret: jwtSecret, expiresIn: expirationTime });
+      const tokenId = randomUUID();
+      const refreshPayload = { sub: user.idUser, tokenId };
+      const jwtSecret = this.configService.get<string>('jwt.refreshSecret')!;
+      const expirationTime = this.configService.get<string>('jwt.refreshExpiration')!;
+      const expirationNumber = Number(expirationTime.replace('d', ''));
+      const expiration = addDay(today, expirationNumber);
 
-    await this.authRepository.create({
-      idSession: tokenId,
-      ipAdress: userMeta.ip,
-      userAgent: userMeta.userAgent,
-      createdAt: today,
-      expiresAt: expiration,
-      userId: user.idUser,
-    });
+      const refreshToken = await this.jwtService.signAsync(refreshPayload, { secret: jwtSecret, expiresIn: expirationTime });
+
+      await this.authRepository.create({
+        idSession: tokenId,
+        ipAdress: userMeta.ip,
+        userAgent: userMeta.userAgent,
+        createdAt: today,
+        expiresAt: expiration,
+        userId: user.idUser,
+      });
+
+      return {
+        accessToken,
+        refreshToken,
+      };
+    }
 
     return {
       accessToken,
-      refreshToken,
     };
   }
 

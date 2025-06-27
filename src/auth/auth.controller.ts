@@ -19,7 +19,7 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.create(createAuthDto, { ip, userAgent });
 
     if (createAuthDto.keepSession && refreshToken) {
-      res.cookie('refreshToken', refreshToken, { path: '/', sameSite: 'lax', httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+      res.cookie('refreshToken', refreshToken, { path: '/', sameSite: 'lax', httpOnly: true, maxAge: 60 * 60 * 24 * 7 });
     }
 
     return {
@@ -37,7 +37,9 @@ export class AuthController {
     @Ip() ip: string,
   ) {
     const { accessToken, refreshToken } = await this.authService.refreshToken({ userAgent, ip }, req.user);
-    res.cookie('refreshToken', refreshToken, { path: '/', sameSite: 'lax', httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    if (refreshToken) {
+      res.cookie('refreshToken', refreshToken, { path: '/', sameSite: 'lax', httpOnly: true, maxAge: 60 * 60 * 24 * 7 });
+    }
     return {
       success: true,
       accessToken,
