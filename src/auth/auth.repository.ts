@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '@database/schema';
+import * as schema from '@database/schemas';
 import { NewSession } from '@database/types';
 import { and, eq, ne } from 'drizzle-orm';
 import type { UUID } from 'node:crypto';

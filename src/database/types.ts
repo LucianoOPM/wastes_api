@@ -1,4 +1,4 @@
-import { users, profiles, sessions, categories, movements } from '@database/schema';
+import { users, profiles, sessions, categories, transactions } from '@database/schemas';
 
 export type QueryDefaults<TOrderBy extends string = string> = {
   limit: number;
@@ -35,22 +35,22 @@ export type NewCategory = typeof categories.$inferInsert;
 export type UpdateCategory = Partial<Omit<Category, 'idCategory' | 'isActive'>>;
 export type UpdateCategoryStatus = Required<Pick<Category, 'isActive'>>;
 
-//MOVEMENTS
-export type Movement = typeof movements.$inferSelect;
-export type QueryMovementDefaults = QueryDefaults<keyof Pick<Movement, 'date' | 'createdAt' | 'amount' | 'type'>>;
-export type QueryMovement = Partial<{
-  startDate: Movement['date'];
-  endDate: Movement['date'];
-  title: Movement['title'];
-  type: Movement['type'];
-  minAmount: Movement['amount'];
-  maxAmount: Movement['amount'];
-  category: Movement['categoryId'];
-  createdAfter: Movement['createdAt'];
-  createdBefore: Movement['createdAt'];
-  isActive: Movement['isActive'];
+//TRANSACTIONS
+export type Transactions = typeof transactions.$inferSelect;
+export type QueryTransactionsDefaults = QueryDefaults<keyof Pick<Transactions, 'date' | 'createdAt' | 'amount' | 'type'>>;
+export type QueryTransactions = Partial<{
+  startDate: Transactions['date'];
+  endDate: Transactions['date'];
+  title: Transactions['title'];
+  type: Transactions['type'];
+  minAmount: Transactions['amount'];
+  maxAmount: Transactions['amount'];
+  category: Transactions['categoryId'];
+  createdAfter: Transactions['createdAt'];
+  createdBefore: Transactions['createdAt'];
+  isActive: Transactions['isActive'];
 }> &
-  QueryMovementDefaults;
-export type NewMovement = typeof movements.$inferInsert;
-export type UpdateMovement = Partial<Pick<NewMovement, 'amount' | 'categoryId' | 'date' | 'description' | 'title' | 'type'>>;
-export type UpdateMovementStatus = Required<Pick<Movement, 'isActive'>>;
+  QueryTransactionsDefaults;
+export type NewTransaction = typeof transactions.$inferInsert;
+export type UpdateTransaction = Partial<Pick<NewTransaction, 'amount' | 'categoryId' | 'date' | 'description' | 'title' | 'type'>>;
+export type UpdateTransactionStatus = Required<Pick<Transactions, 'isActive'>>;
