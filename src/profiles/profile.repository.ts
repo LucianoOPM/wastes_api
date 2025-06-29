@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '@database/schema';
+import * as schema from '@database/schemas';
 import type { NewProfile, UpdateProfile, UpdateProfileStatus } from '@database/types';
 import { FilterProfileDto } from '@profiles/profile.schema';
 import { eq, SQL, and } from 'drizzle-orm';

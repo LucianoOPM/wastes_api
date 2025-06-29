@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 const orderList = ['date', 'createdAt', 'amount', 'type'] as const;
 
-export const NewMovementSchema = z.object({
+export const NewTransactionSchema = z.object({
   title: z
     .string({ required_error: 'Title is required', invalid_type_error: 'title should be a valid string' })
     .max(100, 'Title limit is 100 characters')
@@ -15,14 +15,14 @@ export const NewMovementSchema = z.object({
     })
     .positive({ message: 'Category cannot be a negative value' }),
   amount: z.coerce.number().positive({ message: 'Please specify amout as a positive value' }),
-  type: z.enum(['income', 'expense'], { message: 'Movement type should be only as income or expense' }),
+  type: z.enum(['income', 'expense'], { message: 'Transaction type should be only as income or expense' }),
   description: z.string(),
   date: z
     .string({ required_error: 'Date is required', invalid_type_error: 'Date should be a string' })
     .date('Date should be a valid string date format'),
 });
 
-export const FilterMovementSchema = BaseQuerySchemaBuilder.buildFilterSchema(orderList, {
+export const FilterTransactionSchema = BaseQuerySchemaBuilder.buildFilterSchema(orderList, {
   title: z.string().optional(),
   startDate: z.string().date().optional(),
   endDate: z.string().date().optional(),
@@ -34,10 +34,10 @@ export const FilterMovementSchema = BaseQuerySchemaBuilder.buildFilterSchema(ord
   category: z.coerce.number().optional(),
 });
 
-export const UpdateMovementSchema = NewMovementSchema.partial();
-export const UpdateMovementStatusSchema = z.object({ isActive: z.coerce.boolean() });
+export const UpdateTransactionSchema = NewTransactionSchema.partial();
+export const UpdateTransactionStatusSchema = z.object({ isActive: z.coerce.boolean() });
 
-export type NewMovementDto = z.infer<typeof NewMovementSchema>;
-export type FilterMovementDto = z.infer<typeof FilterMovementSchema>;
-export type UpdateMovementDto = z.infer<typeof UpdateMovementSchema>;
-export type UpdateMovementStatusDto = z.infer<typeof UpdateMovementStatusSchema>;
+export type NewTransactionDto = z.infer<typeof NewTransactionSchema>;
+export type FilterTransactionDto = z.infer<typeof FilterTransactionSchema>;
+export type UpdateTransactionDto = z.infer<typeof UpdateTransactionSchema>;
+export type UpdateTransactionStatusDto = z.infer<typeof UpdateTransactionStatusSchema>;

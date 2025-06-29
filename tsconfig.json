@@ -20,7 +20,7 @@
       "@common/*": ["src/common/*"],
       "@guards/*": ["src/guards/*"],
       "@auth/*": ["src/auth/*"],
-      "@movements/*": ["src/movements/*"],
+      "@transactions/*": ["src/transactions/*"],
       "@categories/*": ["src/categories/*"],
       "@decorators/*": ["src/decorators/*"]
     },
